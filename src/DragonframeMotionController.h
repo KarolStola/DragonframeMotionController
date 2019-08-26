@@ -10,9 +10,10 @@ public:
     void HandleMessage(const String & message);
 
 private:
-    bool IsMessageHi(const String & message);
+    bool IsMessageHi(String & message);
+    void ParseMessage(String & message);
 
-    const String messageHi = "hi";
+    const char * messageHi = "hi";
 
     class DragonframeDevice * dragonframeDevice = nullptr;
 };
