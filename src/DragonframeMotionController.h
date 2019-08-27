@@ -6,9 +6,8 @@
 class DragonframeMotionController
 {
 public:
-    DragonframeMotionController(class DragonframeDevice * dragonframeDevice);
+    void Initialize(class DragonframeDevice * newDragonframeDevice);
     void HandleMessage(const String & message);
-
 private:
     bool IsMessageHi(String & message);
     void ParseMessage(String & message);
