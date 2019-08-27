@@ -8,6 +8,8 @@ class DragonframeMotionController
 public:
     void Initialize(class DragonframeDevice * newDragonframeDevice);
     void HandleMessage(const String & message);
+    virtual ~DragonframeMotionController();
+
 private:
     bool IsMessageHi(String & message);
     void ParseMessage(String & message);

@@ -43,3 +43,9 @@ bool DragonframeMotionController::IsMessageHi(String & message)
 {
     return message.startsWith(messageHi);
 }
+
+
+DragonframeMotionController::~DragonframeMotionController()
+{
+    delete(dragonframeDevice);
+}
