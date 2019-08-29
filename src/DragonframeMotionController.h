@@ -16,27 +16,36 @@ private:
 
     bool IsMessageHi(String & message);
     bool IsMessageQueryAreMotorsMoving(String & message);
+    bool IsMessageMoveMotorTo(String & message);
 
-    void HandleMessageHi(String & message);
-    void HandleMessageQueryAreMotorsMoving(String & message);
+    void SendHi();
+    void SendMotorMovingStatuses();
+    void SendCurrentPosition(int motor, int currentPosition);
+    void SendMotorMovingTo(int motor, int requestedPosition);
+
+    void HandleMessageMoveMotorTo(String & message);
+
 
     void ParseMessage(String & message);
     bool IsEndOfMessage(const String & message, int characterIndex);
     bool IsOmittedCharacter(char character);
+    int GetNumberOfDigitsIn(int number);
+    std::vector<int> GetArguments(String & message);
 
-    const char * messageHi = "hi";
-    const char * messageQueryAreMotorsMoving = "ms";
-    const char * messageMoveMotorTo = "mm";
-    const char * messageQueryMotorPosition = "mp";
-    const char * messageStopMotor = "sm";
-    const char * messageStopAllMotors = "sa";
-    const char * messageJogMotor = "jm";
-    const char * messageInchMotor = "im";
-    const char * messageSetMaxStepsPerSecond = "pr";
-    const char * messageZeroMotorPosition = "zm";
-    const char * messageSetMotorPosition = "np";
-    const char * messagePerformMotionBlur = "bf";
-    const char * messageEnding = "\r\n";
+    static constexpr char * messageHi = "hi";
+    static constexpr char * messageQueryAreMotorsMoving = "ms";
+    static constexpr char * messageMoveMotorTo = "mm";
+    static constexpr char * messageQueryMotorPosition = "mp";
+    static constexpr char * messageStopMotor = "sm";
+    static constexpr char * messageStopAllMotors = "sa";
+    static constexpr char * messageJogMotor = "jm";
+    static constexpr char * messageInchMotor = "im";
+    static constexpr char * messageSetMaxStepsPerSecond = "pr";
+    static constexpr char * messageZeroMotorPosition = "zm";
+    static constexpr char * messageSetMotorPosition = "np";
+    static constexpr char * messagePerformMotionBlur = "bf";
+    static constexpr char * messageEnding = "\r\n";
+    static constexpr int argumentsStartIndex = 3;
 
     class DragonframeDevice * dragonframeDevice = nullptr;
 };

@@ -13,7 +13,7 @@ public:
     virtual int GetProtocolMinorVersion() = 0;  // Second number in version number  0.X.0
     virtual int GetProtocolFixVersion() = 0;    // Third number in version number   0.0.X
     virtual int GetNumberOfAxes() = 0;
-    virtual int GetCurrentMotorPositionInSteps(int motorIndex) = 0;
+    virtual int GetMotorCurrentPositionInSteps(int motorIndex) = 0;
     virtual bool GetIsMotorMoving(int motorIndex) = 0;
 
 

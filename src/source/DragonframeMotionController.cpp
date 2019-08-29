@@ -44,13 +44,22 @@ void DragonframeMotionController::SendMessage(String & message)
 
 void DragonframeMotionController::ParseMessage(String & message)
 {
+    if(message.length() < 2)
+    {
+        return;
+    }
+
     if(IsMessageHi(message))
     {
-        HandleMessageHi(message);
+        SendHi();
     }
     else if (IsMessageQueryAreMotorsMoving(message))
     {
-        HandleMessageQueryAreMotorsMoving(message);
+        SendMotorMovingStatuses();
+    }
+    else if(IsMessageMoveMotorTo(message))
+    {
+        HandleMessageMoveMotorTo(message);
     }
 }
 
@@ -64,19 +73,24 @@ bool DragonframeMotionController::IsMessageQueryAreMotorsMoving(String & message
     return message.startsWith(messageQueryAreMotorsMoving);
 }
 
-void DragonframeMotionController::HandleMessageHi(String & message)
+bool DragonframeMotionController::IsMessageMoveMotorTo(String & message)
 {
-    static String reply =
+    message.startsWith(messageMoveMotorTo);
+}
+
+void DragonframeMotionController::SendHi()
+{
+    static String message =
         String(messageHi)
         + " " + dragonframeDevice->GetProtocolMajorVersion()
         + " " + dragonframeDevice->GetNumberOfAxes()
         + " " + dragonframeDevice->GetProtocolFullVersion()
         + messageEnding;
 
-    SendMessage(reply);
+    SendMessage(message);
 }
 
-void DragonframeMotionController::HandleMessageQueryAreMotorsMoving(String & message)
+void DragonframeMotionController::SendMotorMovingStatuses()
 {
     auto reply = String(messageQueryAreMotorsMoving) + ' ';
 
@@ -89,6 +103,82 @@ void DragonframeMotionController::HandleMessageQueryAreMotorsMoving(String & mes
 
     SendMessage(reply);
 }
+
+void DragonframeMotionController::HandleMessageMoveMotorTo(String & message)
+{
+    auto arguments = GetArguments(message);
+    
+    if(arguments.size() < 2)
+    {
+        return;
+    }
+
+    auto motor = arguments[0];
+    auto requestedPosition = arguments[1];
+    auto currentPosition = dragonframeDevice->GetMotorCurrentPositionInSteps(motor);
+
+    if(currentPosition == requestedPosition)
+    {
+        SendCurrentPosition(motor, currentPosition);
+    }
+    else
+    {
+        dragonframeDevice->MoveMotorTo(motor, requestedPosition);
+        SendMotorMovingTo(motor, requestedPosition);
+    }
+}
+
+void DragonframeMotionController::SendCurrentPosition(int motor, int currentPosition)
+{
+    auto message
+        = String(messageQueryMotorPosition)
+        + " " + motor
+        + " " + currentPosition
+        + messageEnding;
+
+    SendMessage(message);
+}
+
+void DragonframeMotionController::SendMotorMovingTo(int motor, int requestedPosition)
+{
+    auto message
+        = String(messageMoveMotorTo)
+        + " " + motor
+        + " " + requestedPosition
+        + messageEnding;
+    
+    SendMessage(message);
+}
+
+
+std::vector<int> DragonframeMotionController::GetArguments(String & message)
+{
+    std::vector<int> arguments;
+    auto currentIndex = argumentsStartIndex;
+
+    while(currentIndex < message.length())
+    {
+        auto currentArgument = message.substring(currentIndex).toInt();
+        auto argumentDigits = GetNumberOfDigitsIn(currentArgument);
+        currentIndex += argumentDigits + 1;
+        arguments.push_back(currentArgument);
+    }
+
+    return arguments;
+}
+
+
+int DragonframeMotionController::GetNumberOfDigitsIn(int number)
+{
+    int numberOfDigits = 0;
+    while(number > 0)
+    {
+        number /= 10;
+        numberOfDigits++;
+    }
+    return numberOfDigits;
+}
+
 
 DragonframeMotionController::~DragonframeMotionController()
 {
