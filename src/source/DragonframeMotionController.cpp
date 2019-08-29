@@ -31,9 +31,9 @@ void DragonframeMotionController::ParseMessage(String & message)
     {
         auto replyHi =
             String(messageHi)
-            + " " + dragonframeDevice->GetMajorVersion()
+            + " " + dragonframeDevice->GetProtocolMajorVersion()
             + " " + dragonframeDevice->GetNumberOfAxes()
-            + " " + dragonframeDevice->GetFullVersion()
+            + " " + dragonframeDevice->GetProtocolFullVersion()
             + "\r\n" ;
         dragonframeDevice->SendMessage(replyHi);
     }
