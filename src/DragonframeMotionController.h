@@ -17,14 +17,36 @@ private:
     bool IsMessageHi(String & message);
     bool IsMessageQueryAreMotorsMoving(String & message);
     bool IsMessageMoveMotorTo(String & message);
+    bool IsMessageQueryMotorPosition(String & message);
+    bool IsMessageStopMotor(String & message);
+    bool IsMessageStopAllMotors(String & message);
+    bool IsMessageJogMotor(String & message);
+    bool IsMessageInchMotor(String & message);
+    bool IsMessageSetJogSpeed(String & message);
+    bool IsMessageZeroMotorPosition(String & message);
+    bool IsMessageSetMotorPosition(String & message);
 
     void SendHi();
     void SendMotorMovingStatuses();
     void SendCurrentPosition(int motor, int currentPosition);
     void SendMotorMovingTo(int motor, int requestedPosition);
+    void SendStopMotorResponse(int motor);
+    void SendStopAllMotorsResponse();
+    void SendJogMotorResponse(int motor);
+    void SendInchMotorResponse(int motor);
+    void SendSetJogSpeedResponse(int motor, int stepsPerSecond);
+    void SendZeroMotorPositionResponse(int motor);
+    void SendSetMotorPositionResponse(int motor, int position);
 
     void HandleMessageMoveMotorTo(String & message);
-
+    void HandleMessageQueryMotorPosition(String & message);
+    void HandleMessageStopMotor(String & message);
+    void HandleMessageStopAllMotors();
+    void HandleMessageJogMotor(String & message);
+    void HandleMessageInchMotor(String & message);
+    void HandleMessageSetJogSpeed(String & message);
+    void HandleMessageZeroMotorPosition(String & message);
+    void HandleMessageSetMotorPosition(String & message);
 
     void ParseMessage(String & message);
     bool IsEndOfMessage(const String & message, int characterIndex);
@@ -40,7 +62,7 @@ private:
     static constexpr char * messageStopAllMotors = "sa";
     static constexpr char * messageJogMotor = "jm";
     static constexpr char * messageInchMotor = "im";
-    static constexpr char * messageSetMaxStepsPerSecond = "pr";
+    static constexpr char * messageSetJogSpeed = "pr";
     static constexpr char * messageZeroMotorPosition = "zm";
     static constexpr char * messageSetMotorPosition = "np";
     static constexpr char * messagePerformMotionBlur = "bf";

@@ -61,6 +61,34 @@ void DragonframeMotionController::ParseMessage(String & message)
     {
         HandleMessageMoveMotorTo(message);
     }
+    else if(IsMessageQueryMotorPosition(message))
+    {
+        HandleMessageQueryMotorPosition(message);
+    }
+    else if(IsMessageStopMotor(message))
+    {
+        HandleMessageStopMotor(message);
+    }
+    else if(IsMessageStopAllMotors(message))
+    {
+        HandleMessageStopAllMotors();
+    }
+    else if(IsMessageJogMotor(message))
+    {
+        HandleMessageJogMotor(message);
+    }
+    else if(IsMessageInchMotor(message))
+    {
+        HandleMessageInchMotor(message);
+    }
+    else if(IsMessageZeroMotorPosition(message))
+    {
+        HandleMessageZeroMotorPosition(message);
+    }
+    else if(IsMessageSetMotorPosition(message))
+    {
+        HandleMessageSetMotorPosition(message);
+    }
 }
 
 bool DragonframeMotionController::IsMessageHi(String & message)
@@ -75,7 +103,47 @@ bool DragonframeMotionController::IsMessageQueryAreMotorsMoving(String & message
 
 bool DragonframeMotionController::IsMessageMoveMotorTo(String & message)
 {
-    message.startsWith(messageMoveMotorTo);
+    return message.startsWith(messageMoveMotorTo);
+}
+
+bool DragonframeMotionController::IsMessageQueryMotorPosition(String & message)
+{
+    return message.startsWith(messageQueryMotorPosition);
+}
+
+bool DragonframeMotionController::IsMessageStopMotor(String & message)
+{
+    return message.startsWith(messageStopMotor);
+}
+
+bool DragonframeMotionController::IsMessageStopAllMotors(String & message)
+{
+    return message.startsWith(messageStopAllMotors);
+}
+
+bool DragonframeMotionController::IsMessageJogMotor(String & message)
+{
+    return message.startsWith(messageJogMotor);
+}
+
+bool DragonframeMotionController::IsMessageInchMotor(String & message)
+{
+    return message.startsWith(messageInchMotor);
+}
+
+bool DragonframeMotionController::IsMessageSetJogSpeed(String & message)
+{
+    return message.startsWith(messageSetJogSpeed);
+}
+
+bool DragonframeMotionController::IsMessageZeroMotorPosition(String & message)
+{
+    return message.startsWith(messageZeroMotorPosition);
+}
+
+bool DragonframeMotionController::IsMessageSetMotorPosition(String & message)
+{
+    return message.startsWith(messageSetMotorPosition);
 }
 
 void DragonframeMotionController::SendHi()
@@ -128,6 +196,114 @@ void DragonframeMotionController::HandleMessageMoveMotorTo(String & message)
     }
 }
 
+void DragonframeMotionController::HandleMessageQueryMotorPosition(String & message)
+{
+    auto arguments = GetArguments(message);
+
+    if(arguments.size() < 1)
+    {
+        return;
+    }
+
+    auto motor = arguments[0];
+    auto motorPosition = dragonframeDevice->GetMotorCurrentPositionInSteps(motor);
+    SendCurrentPosition(motor, motorPosition);
+}
+
+void DragonframeMotionController::HandleMessageStopMotor(String & message)
+{
+    auto arguments = GetArguments(message);
+
+    if(arguments.size() < 1)
+    {
+        return;
+    }
+
+    auto motor = arguments[0];
+    dragonframeDevice->StopMotor(motor);
+    SendStopMotorResponse(motor);
+}
+
+void DragonframeMotionController::HandleMessageStopAllMotors()
+{
+    dragonframeDevice->StopAllMotors();
+    SendStopAllMotorsResponse();
+}
+
+void DragonframeMotionController::HandleMessageJogMotor(String & message)
+{
+    auto arguments = GetArguments(message);
+
+    if(arguments.size() < 2)
+    {
+        return;
+    }
+
+    auto motor = arguments[0];
+    auto position = arguments[1];
+    dragonframeDevice->JogMotorTo(motor, position);
+    SendJogMotorResponse(motor);
+}
+
+void DragonframeMotionController::HandleMessageInchMotor(String & message)
+{
+    auto arguments = GetArguments(message);
+
+    if(arguments.size() < 2)
+    {
+        return;
+    }
+
+    auto motor = arguments[0];
+    auto position = arguments[1];
+    dragonframeDevice->InchMotorTo(motor, position);
+    SendInchMotorResponse(motor);
+}
+
+void DragonframeMotionController::HandleMessageSetJogSpeed(String & message)
+{
+    auto arguments = GetArguments(message);
+
+    if(arguments.size() < 2)
+    {
+        return;
+    }
+
+    auto motor = arguments[0];
+    auto stepsPerSecond = arguments[1];
+    dragonframeDevice->SetJogSpeedForMotor(motor, stepsPerSecond);
+    SendSetJogSpeedResponse(motor, stepsPerSecond);
+}
+
+void DragonframeMotionController::HandleMessageZeroMotorPosition(String & message)
+{
+    auto arguments = GetArguments(message);
+
+    if(arguments.size() < 1)
+    {
+        return;
+    }
+
+    auto motor = arguments[0];
+    dragonframeDevice->ZeroMotorPosition(motor);
+    SendZeroMotorPositionResponse(motor);
+}
+
+void DragonframeMotionController::HandleMessageSetMotorPosition(String & message)
+{
+    auto arguments = GetArguments(message);
+
+    if(arguments.size() < 2)
+    {
+        return;
+    }
+
+    auto motor = arguments[0];
+    auto position = arguments[1];
+    dragonframeDevice->SetMotorPosition(motor, position);
+    SendSetMotorPositionResponse(motor, position);
+}
+
 void DragonframeMotionController::SendCurrentPosition(int motor, int currentPosition)
 {
     auto message
@@ -150,6 +326,76 @@ void DragonframeMotionController::SendMotorMovingTo(int motor, int requestedPosi
     SendMessage(message);
 }
 
+void DragonframeMotionController::SendStopMotorResponse(int motor)
+{
+    auto message
+        = String(messageStopMotor)
+        + " " + motor
+        + messageEnding;
+
+    SendMessage(message);
+}
+
+void DragonframeMotionController::SendStopAllMotorsResponse()
+{
+    auto message
+        = String(messageStopAllMotors)
+        + messageEnding;
+    
+    SendMessage(message);
+}
+
+void DragonframeMotionController::SendJogMotorResponse(int motor)
+{
+    auto message
+        = String(messageJogMotor)
+        + " " + motor;
+        + messageEnding;
+
+    SendMessage(message);
+}
+
+void DragonframeMotionController::SendInchMotorResponse(int motor)
+{
+    auto message
+        = String(messageInchMotor)
+        + " " + motor
+        + messageEnding;
+
+    SendMessage(message);
+}
+
+void DragonframeMotionController::SendSetJogSpeedResponse(int motor, int stepsPerSecond)
+{
+    auto message
+        = String(messageSetJogSpeed)
+        + " " + motor
+        + " " + stepsPerSecond
+        + messageEnding;
+
+    SendMessage(message);
+}
+
+void DragonframeMotionController::SendZeroMotorPositionResponse(int motor)
+{
+    auto message =
+        String(messageZeroMotorPosition)
+        + " " + motor
+        + messageEnding;
+
+    SendMessage(message);
+}
+
+void DragonframeMotionController::SendSetMotorPositionResponse(int motor, int position)
+{
+    auto message =
+        String(messageSetMotorPosition)
+        + " " + motor
+        + " " + position
+        + messageEnding;
+    
+    SendMessage(message);
+}
 
 std::vector<int> DragonframeMotionController::GetArguments(String & message)
 {
@@ -178,7 +424,6 @@ int DragonframeMotionController::GetNumberOfDigitsIn(int number)
     }
     return numberOfDigits;
 }
-
 
 DragonframeMotionController::~DragonframeMotionController()
 {
