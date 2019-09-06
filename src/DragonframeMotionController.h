@@ -6,10 +6,8 @@
 class DragonframeMotionController
 {
 public:
-    void Initialize(class DragonframeDevice * newDragonframeDevice);
+    DragonframeMotionController(class DragonframeDevice & dragonframeDevice);
     void ParseInput(const String & input);
-
-    virtual ~DragonframeMotionController();
 
 private:
     void SendMessage(String & message);
@@ -69,7 +67,7 @@ private:
     static constexpr char * messageEnding = "\r\n";
     static constexpr int argumentsStartIndex = 3;
 
-    class DragonframeDevice * dragonframeDevice = nullptr;
+    class DragonframeDevice & dragonframeDevice;
 };
 
 #endif

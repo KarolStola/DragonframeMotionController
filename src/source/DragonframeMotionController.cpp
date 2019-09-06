@@ -1,10 +1,10 @@
 #include "DragonframeMotionController.h"
 #include "DragonframeDevice.h"
 
-void DragonframeMotionController::Initialize(DragonframeDevice * newDragonframeDevice)
+DragonframeMotionController::DragonframeMotionController(DragonframeDevice & dragonframeDevice)
+    : dragonframeDevice(dragonframeDevice)
 {
-    dragonframeDevice = newDragonframeDevice;
-    dragonframeDevice->BindAsMessageHandler(*this);
+    dragonframeDevice.BindAsMessageHandler(*this);
 }
 
 void DragonframeMotionController::ParseInput(const String & input)
@@ -38,7 +38,7 @@ bool DragonframeMotionController::IsOmittedCharacter(char character)
 void DragonframeMotionController::SendMessage(String & message)
 {
     Serial.println(message);
-    dragonframeDevice->SendMessage(message);
+    dragonframeDevice.SendMessage(message);
 }
 
 
@@ -150,9 +150,9 @@ void DragonframeMotionController::SendHi()
 {
     static String message =
         String(messageHi)
-        + " " + dragonframeDevice->GetProtocolMajorVersion()
-        + " " + dragonframeDevice->GetNumberOfAxes()
-        + " " + dragonframeDevice->GetProtocolFullVersion()
+        + " " + dragonframeDevice.GetProtocolMajorVersion()
+        + " " + dragonframeDevice.GetNumberOfAxes()
+        + " " + dragonframeDevice.GetProtocolFullVersion()
         + messageEnding;
 
     SendMessage(message);
@@ -162,9 +162,9 @@ void DragonframeMotionController::SendMotorMovingStatuses()
 {
     auto reply = String(messageQueryAreMotorsMoving) + ' ';
 
-    for(int i = 0; i < dragonframeDevice->GetNumberOfAxes(); i++)
+    for(int i = 0; i < dragonframeDevice.GetNumberOfAxes(); i++)
     {
-        reply += dragonframeDevice->GetIsMotorMoving(i) ? '1' : '0';
+        reply += dragonframeDevice.GetIsMotorMoving(i) ? '1' : '0';
     }
 
     reply += messageEnding;
@@ -183,7 +183,7 @@ void DragonframeMotionController::HandleMessageMoveMotorTo(String & message)
 
     auto motor = arguments[0];
     auto requestedPosition = arguments[1];
-    auto currentPosition = dragonframeDevice->GetMotorCurrentPositionInSteps(motor);
+    auto currentPosition = dragonframeDevice.GetMotorCurrentPositionInSteps(motor);
 
     if(currentPosition == requestedPosition)
     {
@@ -191,7 +191,7 @@ void DragonframeMotionController::HandleMessageMoveMotorTo(String & message)
     }
     else
     {
-        dragonframeDevice->MoveMotorTo(motor, requestedPosition);
+        dragonframeDevice.MoveMotorTo(motor, requestedPosition);
         SendMotorMovingTo(motor, requestedPosition);
     }
 }
@@ -206,7 +206,7 @@ void DragonframeMotionController::HandleMessageQueryMotorPosition(String & messa
     }
 
     auto motor = arguments[0];
-    auto motorPosition = dragonframeDevice->GetMotorCurrentPositionInSteps(motor);
+    auto motorPosition = dragonframeDevice.GetMotorCurrentPositionInSteps(motor);
     SendCurrentPosition(motor, motorPosition);
 }
 
@@ -220,13 +220,13 @@ void DragonframeMotionController::HandleMessageStopMotor(String & message)
     }
 
     auto motor = arguments[0];
-    dragonframeDevice->StopMotor(motor);
+    dragonframeDevice.StopMotor(motor);
     SendStopMotorResponse(motor);
 }
 
 void DragonframeMotionController::HandleMessageStopAllMotors()
 {
-    dragonframeDevice->StopAllMotors();
+    dragonframeDevice.StopAllMotors();
     SendStopAllMotorsResponse();
 }
 
@@ -241,7 +241,7 @@ void DragonframeMotionController::HandleMessageJogMotor(String & message)
 
     auto motor = arguments[0];
     auto position = arguments[1];
-    dragonframeDevice->JogMotorTo(motor, position);
+    dragonframeDevice.JogMotorTo(motor, position);
     SendJogMotorResponse(motor);
 }
 
@@ -256,7 +256,7 @@ void DragonframeMotionController::HandleMessageInchMotor(String & message)
 
     auto motor = arguments[0];
     auto position = arguments[1];
-    dragonframeDevice->InchMotorTo(motor, position);
+    dragonframeDevice.InchMotorTo(motor, position);
     SendInchMotorResponse(motor);
 }
 
@@ -271,7 +271,7 @@ void DragonframeMotionController::HandleMessageSetJogSpeed(String & message)
 
     auto motor = arguments[0];
     auto stepsPerSecond = arguments[1];
-    dragonframeDevice->SetJogSpeedForMotor(motor, stepsPerSecond);
+    dragonframeDevice.SetJogSpeedForMotor(motor, stepsPerSecond);
     SendSetJogSpeedResponse(motor, stepsPerSecond);
 }
 
@@ -285,7 +285,7 @@ void DragonframeMotionController::HandleMessageZeroMotorPosition(String & messag
     }
 
     auto motor = arguments[0];
-    dragonframeDevice->ZeroMotorPosition(motor);
+    dragonframeDevice.ZeroMotorPosition(motor);
     SendZeroMotorPositionResponse(motor);
 }
 
@@ -300,7 +300,7 @@ void DragonframeMotionController::HandleMessageSetMotorPosition(String & message
 
     auto motor = arguments[0];
     auto position = arguments[1];
-    dragonframeDevice->SetMotorPosition(motor, position);
+    dragonframeDevice.SetMotorPosition(motor, position);
     SendSetMotorPositionResponse(motor, position);
 }
 
@@ -423,9 +423,4 @@ int DragonframeMotionController::GetNumberOfDigitsIn(int number)
         numberOfDigits++;
     }
     return numberOfDigits;
-}
-
-DragonframeMotionController::~DragonframeMotionController()
-{
-    delete(dragonframeDevice);
 }
