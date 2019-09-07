@@ -183,7 +183,7 @@ void DragonframeMotionController::HandleMessageMoveMotorTo(String & message)
 
     auto motor = arguments[0];
     auto requestedPosition = arguments[1];
-    auto currentPosition = dragonframeDevice.GetMotorCurrentPositionInSteps(motor);
+    auto currentPosition = dragonframeDevice.GetCurrentStep(motor);
 
     if(currentPosition == requestedPosition)
     {
@@ -206,7 +206,7 @@ void DragonframeMotionController::HandleMessageQueryMotorPosition(String & messa
     }
 
     auto motor = arguments[0];
-    auto motorPosition = dragonframeDevice.GetMotorCurrentPositionInSteps(motor);
+    auto motorPosition = dragonframeDevice.GetCurrentStep(motor);
     SendCurrentPosition(motor, motorPosition);
 }
 
