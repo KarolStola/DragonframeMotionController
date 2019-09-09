@@ -2,6 +2,7 @@
 #define DRAGONFRAME_MOTION_CONTROLLER_H
 
 #include <Arduino.h>
+#include <DelayedMemberTask.h>
 
 class DragonframeMotionController
 {
@@ -35,6 +36,7 @@ private:
     void SendSetJogSpeedResponse(int motor, int stepsPerSecond);
     void SendZeroMotorPositionResponse(int motor);
     void SendSetMotorPositionResponse(int motor, int position);
+    void SendMovementPositionUpdates();
 
     void HandleMessageMoveMotorTo(String & message);
     void HandleMessageQueryMotorPosition(String & message);
@@ -46,6 +48,7 @@ private:
     void HandleMessageZeroMotorPosition(String & message);
     void HandleMessageSetMotorPosition(String & message);
 
+    bool IsValidMotor(int motorIndex);
     void ParseMessage(String & message);
     bool IsEndOfMessage(const String & message, int characterIndex);
     bool IsOmittedCharacter(char character);
@@ -67,7 +70,9 @@ private:
     static constexpr char * messageEnding = "\r\n";
     static constexpr int argumentsStartIndex = 3;
 
+    int movementPositionUpdateInterval = 50;
     class DragonframeDevice & dragonframeDevice;
+    DelayedMemberTask<DragonframeMotionController> movementPositionUpdateTask;
 };
 
 #endif

@@ -3,8 +3,10 @@
 
 DragonframeMotionController::DragonframeMotionController(DragonframeDevice & dragonframeDevice)
     : dragonframeDevice(dragonframeDevice)
+    , movementPositionUpdateTask(DelayedTaskTimeResolution::Milliseconds, this, & DragonframeMotionController::SendMovementPositionUpdates)
 {
     dragonframeDevice.BindAsMessageHandler(*this);
+    movementPositionUpdateTask.Delay(movementPositionUpdateInterval);
 }
 
 void DragonframeMotionController::ParseInput(const String & input)
@@ -37,7 +39,6 @@ bool DragonframeMotionController::IsOmittedCharacter(char character)
 
 void DragonframeMotionController::SendMessage(String & message)
 {
-    Serial.println(message);
     dragonframeDevice.SendMessage(message);
 }
 
@@ -183,6 +184,12 @@ void DragonframeMotionController::HandleMessageMoveMotorTo(String & message)
 
     auto motor = arguments[0];
     auto requestedPosition = arguments[1];
+    
+    if(!IsValidMotor(motor))
+    {
+        return;
+    }
+
     auto currentPosition = dragonframeDevice.GetCurrentStep(motor);
 
     if(currentPosition == requestedPosition)
@@ -206,6 +213,12 @@ void DragonframeMotionController::HandleMessageQueryMotorPosition(String & messa
     }
 
     auto motor = arguments[0];
+
+    if(!IsValidMotor(motor))
+    {
+        return;
+    }
+
     auto motorPosition = dragonframeDevice.GetCurrentStep(motor);
     SendCurrentPosition(motor, motorPosition);
 }
@@ -220,6 +233,12 @@ void DragonframeMotionController::HandleMessageStopMotor(String & message)
     }
 
     auto motor = arguments[0];
+
+    if(!IsValidMotor(motor))
+    {
+        return;
+    }
+
     dragonframeDevice.StopMotor(motor);
     SendStopMotorResponse(motor);
 }
@@ -241,6 +260,12 @@ void DragonframeMotionController::HandleMessageJogMotor(String & message)
 
     auto motor = arguments[0];
     auto position = arguments[1];
+    
+    if(!IsValidMotor(motor))
+    {
+        return;
+    }
+
     dragonframeDevice.JogMotorTo(motor, position);
     SendJogMotorResponse(motor);
 }
@@ -256,6 +281,12 @@ void DragonframeMotionController::HandleMessageInchMotor(String & message)
 
     auto motor = arguments[0];
     auto position = arguments[1];
+    
+    if(!IsValidMotor(motor))
+    {
+        return;
+    }
+
     dragonframeDevice.InchMotorTo(motor, position);
     SendInchMotorResponse(motor);
 }
@@ -271,6 +302,12 @@ void DragonframeMotionController::HandleMessageSetJogSpeed(String & message)
 
     auto motor = arguments[0];
     auto stepsPerSecond = arguments[1];
+    
+    if(!IsValidMotor(motor))
+    {
+        return;
+    }
+
     dragonframeDevice.SetJogSpeedForMotor(motor, stepsPerSecond);
     SendSetJogSpeedResponse(motor, stepsPerSecond);
 }
@@ -285,6 +322,12 @@ void DragonframeMotionController::HandleMessageZeroMotorPosition(String & messag
     }
 
     auto motor = arguments[0];
+    
+    if(!IsValidMotor(motor))
+    {
+        return;
+    }
+
     dragonframeDevice.ZeroMotorPosition(motor);
     SendZeroMotorPositionResponse(motor);
 }
@@ -300,6 +343,12 @@ void DragonframeMotionController::HandleMessageSetMotorPosition(String & message
 
     auto motor = arguments[0];
     auto position = arguments[1];
+    
+    if(!IsValidMotor(motor))
+    {
+        return;
+    }
+    
     dragonframeDevice.SetMotorPosition(motor, position);
     SendSetMotorPositionResponse(motor, position);
 }
@@ -396,6 +445,25 @@ void DragonframeMotionController::SendSetMotorPositionResponse(int motor, int po
     
     SendMessage(message);
 }
+
+bool DragonframeMotionController::IsValidMotor(int motorIndex)
+{
+    return motorIndex <= dragonframeDevice.GetNumberOfAxes();
+}
+
+
+void DragonframeMotionController::SendMovementPositionUpdates()
+{
+    for(int i = 1; i <= dragonframeDevice.GetNumberOfAxes(); i++)
+    {
+        if(dragonframeDevice.GetIsMotorMoving(i))
+        {
+            SendCurrentPosition(i, dragonframeDevice.GetCurrentStep(i));
+        }
+    }
+    movementPositionUpdateTask.Delay(movementPositionUpdateInterval);
+}
+
 
 std::vector<int> DragonframeMotionController::GetArguments(String & message)
 {
