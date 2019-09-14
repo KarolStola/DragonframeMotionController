@@ -9,6 +9,8 @@ class DragonframeMotionController
 public:
     DragonframeMotionController(class DragonframeDevice & dragonframeDevice);
     void ParseInput(const String & input);
+    void Update();
+    char GetIncomingMessageDelimiter();
 
 private:
     void SendMessage(String & message);
@@ -68,6 +70,7 @@ private:
     static constexpr char * messageSetMotorPosition = "np";
     static constexpr char * messagePerformMotionBlur = "bf";
     static constexpr char * messageEnding = "\r\n";
+    static constexpr char incomingMessageDelimiter = '\n';
     static constexpr int argumentsStartIndex = 3;
 
     int movementPositionUpdateInterval = 50;

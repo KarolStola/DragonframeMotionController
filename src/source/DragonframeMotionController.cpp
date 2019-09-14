@@ -1,3 +1,5 @@
+#define DEBUG_LOG 0
+
 #include "DragonframeMotionController.h"
 #include "DragonframeDevice.h"
 
@@ -15,17 +17,25 @@ void DragonframeMotionController::ParseInput(const String & input)
     
     for(int i = 0; i < input.length(); i++)
     {
-        if(IsEndOfMessage(input, i))
-        {
-            ParseMessage(message);
-            message = "";
-        }
-        else if (!IsOmittedCharacter(input[i]))
+        if (!IsOmittedCharacter(input[i]))
         {
             message += input[i];
         }    
     }
+
+    ParseMessage(message);
 }
+
+void DragonframeMotionController::Update()
+{
+    movementPositionUpdateTask.Update();
+}
+
+char DragonframeMotionController::GetIncomingMessageDelimiter()
+{
+    return incomingMessageDelimiter;
+}
+
 
 bool DragonframeMotionController::IsEndOfMessage(const String & message, int characterIndex)
 {
@@ -39,6 +49,10 @@ bool DragonframeMotionController::IsOmittedCharacter(char character)
 
 void DragonframeMotionController::SendMessage(String & message)
 {
+#if DEBUG_LOG
+    Serial.print("RES: ");
+    Serial.println(message);
+#endif
     dragonframeDevice.SendMessage(message);
 }
 
@@ -49,6 +63,11 @@ void DragonframeMotionController::ParseMessage(String & message)
     {
         return;
     }
+
+#if DEBUG_LOG
+    Serial.print("MSG: ");
+    Serial.println(message);
+#endif
 
     if(IsMessageHi(message))
     {
@@ -73,6 +92,10 @@ void DragonframeMotionController::ParseMessage(String & message)
     else if(IsMessageStopAllMotors(message))
     {
         HandleMessageStopAllMotors();
+    }
+    else if(IsMessageSetJogSpeed(message))
+    {
+        HandleMessageSetJogSpeed(message);
     }
     else if(IsMessageJogMotor(message))
     {
@@ -184,7 +207,7 @@ void DragonframeMotionController::HandleMessageMoveMotorTo(String & message)
 
     auto motor = arguments[0];
     auto requestedPosition = arguments[1];
-    
+
     if(!IsValidMotor(motor))
     {
         return;
