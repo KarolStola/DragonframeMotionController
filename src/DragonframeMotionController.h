@@ -53,7 +53,7 @@ private:
     bool IsValidMotor(int motorIndex);
     void ParseMessage(String & message);
     bool IsEndOfMessage(const String & message, int characterIndex);
-    bool IsOmittedCharacter(char character);
+    bool IsEndingCharacter(char character);
     int GetNumberOfDigitsIn(int number);
     std::vector<int> GetArguments(String & message);
 

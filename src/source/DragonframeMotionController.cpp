@@ -17,13 +17,17 @@ void DragonframeMotionController::ParseInput(const String & input)
     
     for(int i = 0; i < input.length(); i++)
     {
-        if (!IsOmittedCharacter(input[i]))
+        if (IsEndingCharacter(input[i]))
+        {
+            ParseMessage(message);
+            message = "";
+        }
+        else
         {
             message += input[i];
-        }    
+        }
     }
 
-    ParseMessage(message);
 }
 
 void DragonframeMotionController::Update()
@@ -36,15 +40,16 @@ char DragonframeMotionController::GetIncomingMessageDelimiter()
     return incomingMessageDelimiter;
 }
 
-
-bool DragonframeMotionController::IsEndOfMessage(const String & message, int characterIndex)
+bool DragonframeMotionController::IsEndingCharacter(char character)
 {
-    return message[characterIndex] == '\n' && characterIndex > 0 && message[characterIndex-1] == '\r';
-}
-
-bool DragonframeMotionController::IsOmittedCharacter(char character)
-{
-    return character == '\r';
+    for(int i = 0; messageEnding[i] != '\0' ; i++)
+    {
+        if(character == messageEnding[i])
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void DragonframeMotionController::SendMessage(String & message)
