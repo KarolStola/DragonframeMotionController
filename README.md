@@ -1,6 +1,8 @@
 # Dragonframe Motion Controller
 Arduino library for controlling generic Dragonframe Motion Controllers. It handles translating raw messages into code events as well as creating and sending appropriate responses. You still need to implement your own communication channel as well as handling of all the events.
 
+For a complete example of implementation, please refer to https://github.com/KarolStola/DragonframeWithOpti
+
 Please note, that the implementation currently does not support the motion blur handling. Feel free to submit the merge or feature request if you'd like it to be added.
 
 ## Instalation
@@ -32,5 +34,3 @@ void loop()
 }
 
 ```
-
-For a complete example of implementation, please refer to https://github.com/KarolStola/DragonframeWithOpti
