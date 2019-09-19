@@ -1,6 +1,8 @@
 # Dragonframe Motion Controller
 Arduino library for controlling generic Dragonframe Motion Controllers.
 
+Please note, that the implementation currently does not support the motion blur handling. Feel free to submit the merge request if you'd like to add it.
+
 ## Instalation
 1. Install prerequisite library: https://github.com/KarolStola/DelayedTasks
 2. Clone the repository into your sketchbook location. The path can be set/viewed in File => Preferences => Settings tab.
