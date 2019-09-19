@@ -5,12 +5,12 @@ Please note, that the implementation currently does not support the motion blur 
 
 ## Instalation
 1. Install prerequisite library: https://github.com/KarolStola/DelayedTasks
-2. Clone the repository into your sketchbook location. The path can be set/viewed in File => Preferences => Settings tab.
+2. Clone the repository to your sketchbook library location. The path can be set/viewed in ```File > Preferences > Settings```. Put the library in the ```libraries``` folder.
 
 ## Usage
 1. Implement the interface of ```DragonframeDevice```.
-2. Create static instance of ```DragonframeDevice```.
-3. Create static Instance of ```DrafonframeMotionController``` and pass the implemented ```DragonframeDevice``` as an argument to the constructor.
+2. Create global instance of ```DragonframeDevice```.
+3. Create global Instance of ```DrafonframeMotionController``` and pass the implemented ```DragonframeDevice``` as an argument to the constructor.
 4. Call the ```DragonframeMotionController::Update()``` function in the ```void loop()```.
 
 ### Minimal Example
