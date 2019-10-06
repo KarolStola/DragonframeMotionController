@@ -191,7 +191,7 @@ void DragonframeMotionController::SendMotorMovingStatuses()
 {
     auto reply = String(messageQueryAreMotorsMoving) + ' ';
 
-    for(int i = 0; i < dragonframeDevice.GetNumberOfAxes(); i++)
+    for(int i = 1; i <= dragonframeDevice.GetNumberOfAxes(); i++)
     {
         reply += dragonframeDevice.GetIsMotorMoving(i) ? '1' : '0';
     }
